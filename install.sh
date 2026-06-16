@@ -43,13 +43,13 @@ echo "==> 安装依赖（首次较慢，含 faster-whisper / reportlab / python-
 "$VENV_PY" -m pip install --quiet --upgrade pip
 "$VENV_PY" -m pip install --quiet -r "$REPO_DIR/requirements.txt"
 
-# ---- 4. 改写 SKILL.md 中写死的路径，指向实际安装位置 ----
-# 原 skill 默认写死 ~/.openclaw/skills/podcast-gen，这里替换成本机实际路径，
-# 并让 gen_handbook.py 用 venv 的 python（确保 docx/reportlab 可用）。
-export SKILL_ROOT VENV_PY  # 供下面 perl 通过 %ENV 读取
-perl -0pi -e 's{\Q~/.openclaw/skills/podcast-gen\E}{$ENV{SKILL_ROOT}}g' "$SKILL_ROOT/SKILL.md"
-perl -0pi -e 's{\Q$HOME/.openclaw/skills/podcast-gen\E}{$ENV{SKILL_ROOT}}g' "$SKILL_ROOT/SKILL.md"
-perl -0pi -e 's{python3 \Q$ENV{SKILL_ROOT}\E/scripts/gen_handbook\.py}{$ENV{VENV_PY} $ENV{SKILL_ROOT}/scripts/gen_handbook.py}g' "$SKILL_ROOT/SKILL.md"
+# ---- 4. 若安装到非默认位置，把 SKILL.md 里的标准路径改写为实际位置 ----
+# SKILL.md 默认写 ~/.claude/skills/podcast-gen 并已用 .venv 的 python；
+# 装到别处时把该前缀替换成实际安装路径即可。
+if [ "$SKILL_ROOT" != "$HOME/.claude/skills/podcast-gen" ]; then
+  export SKILL_ROOT  # 供下面 perl 通过 %ENV 读取
+  perl -0pi -e 's{\Q~/.claude/skills/podcast-gen\E}{$ENV{SKILL_ROOT}}g' "$SKILL_ROOT/SKILL.md"
+fi
 
 # ---- 5. 工作目录 ----
 mkdir -p "$HOME/workflow"
