@@ -35,13 +35,29 @@ mkdir -p "$SKILL_ROOT"
 cp -R "$REPO_DIR/skills/podcast-gen/." "$SKILL_ROOT/"
 
 # ---- 3. 创建 venv 并安装依赖 ----
-PYTHON="${PYTHON:-python3}"
-echo "==> 创建虚拟环境 .venv（使用 $PYTHON）"
+# faster-whisper / ctranslate2 / av 目前没有 3.13+ 的 wheel，需 Python 3.10–3.12。
+# 可用 PYTHON=/path/to/python3.12 覆盖自动探测。
+if [ -n "${PYTHON:-}" ]; then
+  :
+else
+  for c in python3.12 python3.11 python3.10 python3; do
+    if command -v "$c" >/dev/null 2>&1; then
+      ver="$("$c" -c 'import sys;print("%d.%d"%sys.version_info[:2])' 2>/dev/null)"
+      case "$ver" in 3.10|3.11|3.12) PYTHON="$c"; break;; esac
+    fi
+  done
+fi
+if [ -z "${PYTHON:-}" ]; then
+  echo "✗ 找不到 Python 3.10–3.12（faster-whisper 暂不支持 3.13+）。" >&2
+  echo "  装一个，例如：brew install python@3.12，或用 PYTHON=/path/to/python3.12 $0" >&2
+  exit 1
+fi
+echo "==> 创建虚拟环境 .venv（使用 $PYTHON = $("$PYTHON" --version 2>&1)）"
 "$PYTHON" -m venv "$SKILL_ROOT/.venv"
 VENV_PY="$SKILL_ROOT/.venv/bin/python3"
 echo "==> 安装依赖（首次较慢，含 faster-whisper / reportlab / python-docx）"
 "$VENV_PY" -m pip install --quiet --upgrade pip
-"$VENV_PY" -m pip install --quiet -r "$REPO_DIR/requirements.txt"
+"$VENV_PY" -m pip install --quiet --retries 5 --timeout 120 -r "$REPO_DIR/requirements.txt"
 
 # ---- 4. 若安装到非默认位置，把 SKILL.md 里的标准路径改写为实际位置 ----
 # SKILL.md 默认写 ~/.claude/skills/podcast-gen 并已用 .venv 的 python；

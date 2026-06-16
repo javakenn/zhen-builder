@@ -35,7 +35,7 @@ cd zhen-builder
 
 ### 前置要求
 
-- Python 3.10+（自带 `venv`）
+- Python **3.10–3.12**（faster-whisper 暂无 3.13+ 的 wheel；install.sh 会自动挑兼容版本）
 - 约 2GB 磁盘（依赖 + whisper 模型）
 - 无需 ffmpeg（faster-whisper 依赖的 PyAV 已内置）
 
