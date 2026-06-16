@@ -1,0 +1,6 @@
+# podcast-gen / 生成学习资料 依赖
+# transcribe.py 转写
+faster-whisper>=1.2.0
+# gen_handbook.py 生成 .docx + PDF
+python-docx>=1.1.0
+reportlab>=4.0.0

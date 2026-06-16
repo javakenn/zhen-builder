@@ -1,0 +1,21 @@
+# 虚拟环境（体积巨大，安装时本地重建）
+.venv/
+venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 运行产物
+workflow/
+*.log
+
+# 密钥（永不上传）
+.env
+.env.*
+*.key
+
+# 系统
+.DS_Store
